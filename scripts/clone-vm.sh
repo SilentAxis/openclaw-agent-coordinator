@@ -63,9 +63,9 @@ else
     SUSPENDED=true
   fi
 
-  qemu-img create -f qcow2 -b "$SOURCE_DISK" -F qcow2 "$CLONE_DISK"
-  # ^ Linked clone (fast, space-efficient). For full independent copy use:
-  # qemu-img convert -f qcow2 -O qcow2 "$SOURCE_DISK" "$CLONE_DISK"
+  # Full independent copy — required because SOURCE_VM is running and holds a
+  # write lock on the backing file. A linked clone would conflict with it.
+  qemu-img convert -f qcow2 -O qcow2 "$SOURCE_DISK" "$CLONE_DISK"
 
   if [[ "${SUSPENDED:-false}" == "true" ]]; then
     virsh resume "$SOURCE_VM"
@@ -99,6 +99,28 @@ if [[ "$SKIP_DEFINE" == "false" ]]; then
   ok "VM '$CLONE_VM' defined."
 else
   info "VM already defined — skipping define step."
+fi
+
+# ── Step 3b: If clone disk was a linked clone (old run), recreate it ─────────
+# Detect if existing disk has a backing file (linked clone) and replace it
+if [[ -f "$CLONE_DISK" ]]; then
+  BACKING=$(qemu-img info "$CLONE_DISK" 2>/dev/null | grep "backing file:" | awk '{print $3}' || true)
+  if [[ -n "$BACKING" ]]; then
+    warn "Existing clone disk is a linked clone (backing: $BACKING) — replacing with full copy."
+    rm -f "$CLONE_DISK"
+    SOURCE_STATE=$(virsh domstate "$SOURCE_VM" 2>/dev/null || echo "unknown")
+    if [[ "$SOURCE_STATE" == "running" ]]; then
+      info "Suspending '$SOURCE_VM' for clean disk copy..."
+      virsh suspend "$SOURCE_VM"
+      SUSPENDED=true
+    fi
+    qemu-img convert -f qcow2 -O qcow2 "$SOURCE_DISK" "$CLONE_DISK"
+    if [[ "${SUSPENDED:-false}" == "true" ]]; then
+      virsh resume "$SOURCE_VM"
+      ok "Resumed '$SOURCE_VM'."
+    fi
+    ok "Disk replaced with full independent copy."
+  fi
 fi
 
 # ── Step 4: Start the clone VM ────────────────────────────────────────────────
