@@ -22,7 +22,6 @@ GATEWAY="10.10.0.1"
 DNS="10.10.0.1"
 INTERFACE="enp1s0"
 DISK_DIR="/mnt/par-assembly/virtclaw"
-SOURCE_DISK="${DISK_DIR}/openclaw.qcow2"
 CLONE_DISK="${DISK_DIR}/openclaw-test.qcow2"
 NETCFG_REMOTE="/etc/network/interfaces"
 SSH_KEY="${HOME}/.ssh/openclaw-fileserver"
@@ -36,9 +35,16 @@ die()   { echo "[ERROR] $*" >&2; exit 1; }
 
 # ── Preflight ─────────────────────────────────────────────────────────────────
 [[ $EUID -eq 0 ]] || die "Run as root."
-command -v virsh  >/dev/null || die "virsh not found."
+command -v virsh    >/dev/null || die "virsh not found."
 command -v qemu-img >/dev/null || die "qemu-img not found."
-command -v uuidgen >/dev/null || die "uuidgen not found."
+command -v uuidgen  >/dev/null || die "uuidgen not found."
+command -v xmllint  >/dev/null || die "xmllint not found (apt install libxml2-utils)."
+
+# Detect actual source disk path from live VM XML
+SOURCE_DISK=$(virsh dumpxml "$SOURCE_VM" 2>/dev/null \
+  | xmllint --xpath "string(//disk[@device='disk']/source/@file)" - 2>/dev/null || true)
+[[ -n "$SOURCE_DISK" ]] || die "Could not detect disk path for VM '$SOURCE_VM'. Is it defined?"
+info "Detected source disk: $SOURCE_DISK"
 
 # ── Step 1: Check if clone VM already defined ─────────────────────────────────
 if virsh dominfo "$CLONE_VM" &>/dev/null; then
@@ -53,7 +59,7 @@ if [[ -f "$CLONE_DISK" ]]; then
   ok "Disk '$CLONE_DISK' already exists — skipping copy."
 else
   info "Cloning disk: $SOURCE_DISK → $CLONE_DISK"
-  [[ -f "$SOURCE_DISK" ]] || die "Source disk not found: $SOURCE_DISK"
+  [[ -f "$SOURCE_DISK" ]] || die "Source disk not found: $SOURCE_DISK — check virsh dumpxml $SOURCE_VM"
 
   # Pause source VM to ensure a clean disk copy
   SOURCE_STATE=$(virsh domstate "$SOURCE_VM" 2>/dev/null || echo "unknown")
@@ -88,8 +94,8 @@ if [[ "$SKIP_DEFINE" == "false" ]]; then
   sed -i "s|<name>${SOURCE_VM}</name>|<name>${CLONE_VM}</name>|g" "$TMPXML"
   # UUID
   sed -i "s|<uuid>.*</uuid>|<uuid>${NEW_UUID}</uuid>|g" "$TMPXML"
-  # Disk path
-  sed -i "s|${DISK_DIR}/${SOURCE_VM}\.qcow2|${CLONE_DISK}|g" "$TMPXML"
+  # Disk path — use detected SOURCE_DISK, not a hardcoded name
+  sed -i "s|${SOURCE_DISK}|${CLONE_DISK}|g" "$TMPXML"
   # Remove runtime state that shouldn't carry over
   sed -i '/<seclabel/,/\/seclabel>/d' "$TMPXML"
 
