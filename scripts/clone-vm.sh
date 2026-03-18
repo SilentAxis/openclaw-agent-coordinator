@@ -98,6 +98,13 @@ if [[ "$SKIP_DEFINE" == "false" ]]; then
   sed -i "s|${SOURCE_DISK}|${CLONE_DISK}|g" "$TMPXML"
   # Remove runtime state that shouldn't carry over
   sed -i '/<seclabel/,/\/seclabel>/d' "$TMPXML"
+  # Remove hardcoded macvtap target — libvirt will assign a new one (macvtap1 etc.)
+  sed -i '/<target dev=.macvtap/d' "$TMPXML"
+  # Remove portid — each VM needs a unique port on the network
+  sed -i 's/ portid="[^"]*"//' "$TMPXML"
+  # Randomize MAC address to avoid collision
+  NEW_MAC=$(printf '52:54:00:%02x:%02x:%02x' $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)))
+  sed -i "s|<mac address='[^']*'/>|<mac address='${NEW_MAC}'/>|g" "$TMPXML"
 
   info "Defining clone VM '$CLONE_VM'..."
   virsh define "$TMPXML"
