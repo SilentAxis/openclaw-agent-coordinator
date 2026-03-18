@@ -57,10 +57,76 @@ echo ""
 # ── Step 1: Prerequisites ─────────────────────────────────────────────────────
 info "Step 1: Checking prerequisites..."
 
+PREREQ_FAIL=false
+
+# OpenClaw
 if ! command -v openclaw &>/dev/null; then
-  error "OpenClaw is not installed or not in PATH. Install it first: https://docs.openclaw.ai"
+  error "OpenClaw is not installed or not in PATH. See: https://docs.openclaw.ai"
 fi
-success "OpenClaw found: $(openclaw --version 2>/dev/null || echo 'installed')"
+success "openclaw: $(openclaw --version 2>/dev/null || echo 'installed')"
+
+# git
+if ! command -v git &>/dev/null; then
+  warn "git not found — install with: apt install git / brew install git"
+  PREREQ_FAIL=true
+else
+  success "git: $(git --version)"
+fi
+
+# uv / uvx (required for jCodeMunch + jDocMunch MCP tools)
+if ! command -v uvx &>/dev/null; then
+  warn "uvx not found — install uv: curl -LsSf https://astral.sh/uv/install.sh | sh"
+  PREREQ_FAIL=true
+else
+  success "uvx: $(uvx --version 2>/dev/null || echo 'installed')"
+fi
+
+# python3
+if ! command -v python3 &>/dev/null; then
+  warn "python3 not found — install with: apt install python3"
+  PREREQ_FAIL=true
+else
+  success "python3: $(python3 --version)"
+fi
+
+# jq (optional but recommended)
+if ! command -v jq &>/dev/null; then
+  warn "jq not found — JSON validation will be skipped. Install: apt install jq"
+else
+  success "jq: $(jq --version)"
+fi
+
+# curl
+if ! command -v curl &>/dev/null; then
+  warn "curl not found — install with: apt install curl"
+  PREREQ_FAIL=true
+else
+  success "curl: present"
+fi
+
+# docker (optional — only needed for docker-infra agent)
+if ! command -v docker &>/dev/null; then
+  warn "docker not found — R. Giskard (docker-infra agent) will be limited. See: https://docs.docker.com/engine/install/"
+else
+  success "docker: $(docker --version)"
+fi
+
+# MCP tools via uvx
+info "Checking MCP tools..."
+if command -v uvx &>/dev/null; then
+  if uvx jcodemunch-mcp --help &>/dev/null 2>&1; then
+    success "jcodemunch-mcp: available"
+  else
+    warn "jcodemunch-mcp: not cached — will be fetched on first use by OpenClaw"
+  fi
+  if uvx jdocmunch-mcp --help &>/dev/null 2>&1; then
+    success "jdocmunch-mcp: available"
+  else
+    warn "jdocmunch-mcp: not cached — will be fetched on first use by OpenClaw"
+  fi
+fi
+
+[[ "$PREREQ_FAIL" == "true" ]] && error "One or more required prerequisites missing. Fix above warnings and re-run."
 
 # Load .env if present
 if [[ -f "$ENV_FILE" ]]; then
@@ -68,8 +134,14 @@ if [[ -f "$ENV_FILE" ]]; then
   source "$ENV_FILE"
   set +a
   success "Loaded .env from $ENV_FILE"
+elif [[ -f "$AGENT_ROOT/.env" ]]; then
+  set -a
+  source "$AGENT_ROOT/.env"
+  set +a
+  success "Loaded .env from $AGENT_ROOT/.env"
 else
-  warn ".env not found at $ENV_FILE — ensure API keys are set in environment"
+  warn ".env not found — ensure API keys are set in environment"
+  warn "Copy $AGENT_ROOT/.env.example to $AGENT_ROOT/.env and fill in your keys"
 fi
 
 # Check required API key
