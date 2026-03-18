@@ -1,0 +1,61 @@
+{
+  "_comment": "Agent registry for the OpenClaw Agent Co-ordinator fleet. Used by setup.sh and openclaw.json.",
+  "agents": [
+    {
+      "id": "coordinator",
+      "name": "R. Daneel",
+      "fullName": "R. Daneel Olivaw",
+      "emoji": "🧠",
+      "role": "Co-ordinator",
+      "sessionKey": "session:coordinator-agent",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6",
+        "fallback": "anthropic/claude-haiku-4-5"
+      },
+      "workspace": "coordinator/workspace",
+      "phase": 1
+    },
+    {
+      "id": "python-dev",
+      "name": "R. Sammy",
+      "fullName": "R. Sammy",
+      "emoji": "🐍",
+      "role": "Python Developer",
+      "sessionKey": "session:python-dev-agent",
+      "model": {
+        "primary": "anthropic/claude-haiku-4-5",
+        "fallback": "anthropic/claude-sonnet-4-6"
+      },
+      "workspace": "python-dev/workspace",
+      "phase": 1
+    },
+    {
+      "id": "docker-infra",
+      "name": "R. Giskard",
+      "fullName": "R. Giskard Reventlov",
+      "emoji": "🐳",
+      "role": "Docker & Infrastructure",
+      "sessionKey": "session:docker-infra-agent",
+      "model": {
+        "primary": "anthropic/claude-haiku-4-5",
+        "fallback": "anthropic/claude-sonnet-4-6"
+      },
+      "workspace": "docker-infra/workspace",
+      "phase": 1
+    },
+    {
+      "id": "creative-director",
+      "name": "R. Andrew",
+      "fullName": "R. Andrew Martin",
+      "emoji": "🎨",
+      "role": "Creative Director",
+      "sessionKey": "session:creative-director-agent",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6",
+        "fallback": "anthropic/claude-haiku-4-5"
+      },
+      "workspace": "creative-director/workspace",
+      "phase": 1
+    }
+  ]
+}

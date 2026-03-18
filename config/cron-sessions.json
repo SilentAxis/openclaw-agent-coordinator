@@ -1,0 +1,41 @@
+{
+  "_comment": "Persistent named session definitions for the OpenClaw Agent Co-ordinator fleet. Applied by setup.sh via 'openclaw sessions register'.",
+  "sessions": [
+    {
+      "key": "session:coordinator-agent",
+      "label": "R. Daneel — Co-ordinator",
+      "agentId": "coordinator",
+      "model": "anthropic/claude-sonnet-4-6",
+      "workspace": "${AGENT_ROOT}/coordinator/workspace",
+      "persistent": true,
+      "description": "Central co-ordinator. Classifies tasks, delegates to specialists, aggregates results, reports back to main session."
+    },
+    {
+      "key": "session:python-dev-agent",
+      "label": "R. Sammy — Python Developer",
+      "agentId": "python-dev",
+      "model": "anthropic/claude-haiku-4-5",
+      "workspace": "${AGENT_ROOT}/python-dev/workspace",
+      "persistent": true,
+      "description": "Python scripts, automation, API integrations, data pipelines."
+    },
+    {
+      "key": "session:docker-infra-agent",
+      "label": "R. Giskard — Docker/Infra",
+      "agentId": "docker-infra",
+      "model": "anthropic/claude-haiku-4-5",
+      "workspace": "${AGENT_ROOT}/docker-infra/workspace",
+      "persistent": true,
+      "description": "Docker Compose, container hardening, Traefik, networking, service deployments."
+    },
+    {
+      "key": "session:creative-director-agent",
+      "label": "R. Andrew — Creative Director",
+      "agentId": "creative-director",
+      "model": "anthropic/claude-sonnet-4-6",
+      "workspace": "${AGENT_ROOT}/creative-director/workspace",
+      "persistent": true,
+      "description": "Blog posts, announcements, naming, tone, content strategy."
+    }
+  ]
+}
