@@ -1,0 +1,133 @@
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "anthropic/claude-haiku-4-5",
+        "fallbacks": [
+          "anthropic/claude-sonnet-4-6",
+          "google/gemini-3-flash-preview"
+        ]
+      },
+      "models": {
+        "anthropic/claude-sonnet-4-6": {
+          "alias": "sonnet",
+          "cacheRetention": "long"
+        },
+        "anthropic/claude-haiku-4-5": {
+          "cacheRetention": "short"
+        },
+        "google/gemini-3-flash-preview": {
+          "alias": "gemini",
+          "cacheRetention": "short"
+        }
+      },
+      "contextPruning": {
+        "mode": "cache-ttl",
+        "ttl": "55m",
+        "pruneToolOutputs": true,
+        "pruneOldMessages": true
+      },
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "timeoutSeconds": 120,
+      "heartbeat": {
+        "every": "1h"
+      }
+    },
+    "list": [
+      {
+        "id": "coordinator",
+        "name": "R. Daneel",
+        "workspace": "/opt/OpenclawAgent/coordinator/workspace",
+        "agentDir": "/opt/OpenclawAgent/coordinator/agent",
+        "default": true,
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6",
+          "fallbacks": [
+            "anthropic/claude-haiku-4-5"
+          ]
+        },
+        "identity": {
+          "name": "R. Daneel",
+          "emoji": "🧠"
+        }
+      },
+      {
+        "id": "python-dev",
+        "name": "R. Sammy",
+        "workspace": "/opt/OpenclawAgent/python-dev/workspace",
+        "agentDir": "/opt/OpenclawAgent/python-dev/agent",
+        "model": {
+          "primary": "anthropic/claude-haiku-4-5",
+          "fallbacks": [
+            "anthropic/claude-sonnet-4-6"
+          ]
+        },
+        "identity": {
+          "name": "R. Sammy",
+          "emoji": "🐍"
+        }
+      },
+      {
+        "id": "docker-infra",
+        "name": "R. Giskard",
+        "workspace": "/opt/OpenclawAgent/docker-infra/workspace",
+        "agentDir": "/opt/OpenclawAgent/docker-infra/agent",
+        "model": {
+          "primary": "anthropic/claude-haiku-4-5",
+          "fallbacks": [
+            "anthropic/claude-sonnet-4-6"
+          ]
+        },
+        "identity": {
+          "name": "R. Giskard",
+          "emoji": "🐳"
+        }
+      },
+      {
+        "id": "creative-director",
+        "name": "R. Andrew",
+        "workspace": "/opt/OpenclawAgent/creative-director/workspace",
+        "agentDir": "/opt/OpenclawAgent/creative-director/agent",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6",
+          "fallbacks": [
+            "anthropic/claude-haiku-4-5"
+          ]
+        },
+        "identity": {
+          "name": "R. Andrew",
+          "emoji": "🎨"
+        }
+      }
+    ]
+  },
+  "session": {
+    "dmScope": "per-channel-peer",
+    "maintenance": {
+      "mode": "enforce",
+      "pruneAfter": "30d",
+      "maxEntries": 500,
+      "rotateBytes": "10mb"
+    }
+  },
+  "diagnostics": {
+    "enabled": true,
+    "trackCacheHits": true,
+    "trackTokenUsage": true,
+    "trackModelSwitches": true
+  },
+  "mcp": {
+    "servers": {
+      "jcodemunch": {
+        "command": "uvx",
+        "args": ["jcodemunch-mcp"]
+      },
+      "jdocmunch": {
+        "command": "uvx",
+        "args": ["jdocmunch-mcp"]
+      }
+    }
+  }
+}

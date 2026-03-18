@@ -1,0 +1,14 @@
+# Agent state - never commit
+*/agent/
+*/sessions/
+*/workspace/memory/
+
+# Secrets
+.env
+*.env
+*.key
+*.pem
+
+# OS
+.DS_Store
+*.swp
