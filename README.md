@@ -117,3 +117,25 @@ OPENCLAW_CONFIG_PATH=/opt/OpenclawAgent/openclaw.json openclaw gateway start
 - OpenClaw docs: https://docs.openclaw.ai
 - Vikunja project: #24 — OpenClaw Agent Co-ordinator
 - Architecture doc: `openclaw-vault/docs/plans/agent-coordinator-architecture.md`
+
+
+## Compatibility (OpenClaw 2026.3.14+)
+
+This project targets current OpenClaw CLI semantics.
+
+- List sessions: `openclaw sessions --all-agents`
+- Run coordinator task: `openclaw agent --agent coordinator --session-id coordinator-agent --message "..."`
+- Validate config before start: `OPENCLAW_CONFIG_PATH=/opt/OpenclawAgent/openclaw.json openclaw config validate`
+
+
+## Security defaults
+
+The committed `openclaw.json` is now treated as a **safe template**, not a live drop-in internet-facing config.
+
+- default bind: `loopback`
+- Control UI dangerous flags: disabled
+- explicit local Control UI origins only
+- gateway auth rate limiting enabled
+- gateway token placeholder must be replaced during setup
+
+If you need LAN or reverse-proxy exposure, change those values deliberately after install and validate with `openclaw config validate`.

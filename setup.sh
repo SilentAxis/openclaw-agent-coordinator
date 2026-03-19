@@ -240,15 +240,12 @@ for agent in "${!AGENT_SESSIONS[@]}"; do
     continue
   fi
 
-  # Extract the short session target (e.g. session:python-dev-agent) from the full key
-  session_target=$(echo "$session_key" | sed 's|^agent:[^:]*:||')
-
   OPENCLAW_CONFIG_PATH="$OPENCLAW_CONFIG" openclaw cron add \
     --name "$cron_name" \
     --agent "$agent" \
     --every "1h" \
     --message "Heartbeat: check for pending tasks from R. Daneel and process them. If none, reply HEARTBEAT_OK." \
-    --session "$session_target" \
+    --session-key "$session_key" \
     --no-deliver \
     --light-context \
     --json > /dev/null 2>&1 && success "  Registered cron: $cron_name" \
@@ -268,6 +265,12 @@ else
   warn "jq not installed — skipping JSON validation"
 fi
 
+if OPENCLAW_CONFIG_PATH="$OPENCLAW_CONFIG" openclaw config validate --json >/dev/null 2>&1; then
+  success "openclaw.json passed OpenClaw schema validation"
+else
+  warn "openclaw.json failed OpenClaw schema validation. Run: OPENCLAW_CONFIG_PATH=$OPENCLAW_CONFIG openclaw config validate"
+fi
+
 # ── Step 6: Summary ───────────────────────────────────────────────────────────
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -283,6 +286,6 @@ echo "  To start OpenClaw with this fleet:"
 echo "    OPENCLAW_CONFIG_PATH=$OPENCLAW_CONFIG openclaw gateway start"
 echo ""
 echo "  To verify agents are reachable:"
-echo "    openclaw sessions list"
+echo "    openclaw sessions --all-agents"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""

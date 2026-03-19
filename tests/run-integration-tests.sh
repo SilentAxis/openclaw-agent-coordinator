@@ -33,7 +33,7 @@ skip()    { log "${YELLOW}[SKIP]${NC}  $*"; ((SKIP++)); }
 # ── Helpers ───────────────────────────────────────────────────────────────────
 check_session() {
   local session_key="$1"
-  if openclaw sessions list 2>/dev/null | grep -q "$session_key"; then
+  if openclaw sessions --all-agents 2>/dev/null | grep -q "$session_key"; then
     return 0
   fi
   return 1
@@ -41,8 +41,9 @@ check_session() {
 
 send_to_coordinator() {
   local message="$1"
-  openclaw sessions send \
-    --session "session:coordinator-agent" \
+  openclaw agent \
+    --agent "coordinator" \
+    --session-id "coordinator-agent" \
     --message "$message" \
     --timeout 120 2>/dev/null
 }

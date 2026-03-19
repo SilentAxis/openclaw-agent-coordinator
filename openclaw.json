@@ -15,7 +15,7 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "openai-codex/gpt-5.4-mini",
+        "primary": "openai-codex/gpt-5.4",
         "fallbacks": [
           "openai-codex/gpt-5.3-codex",
           "openai-codex/gpt-5.4",
@@ -80,7 +80,7 @@
         "workspace": "/opt/OpenclawAgent/python-dev/workspace",
         "agentDir": "/opt/OpenclawAgent/python-dev/agent",
         "model": {
-          "primary": "openai-codex/gpt-5.4-mini",
+          "primary": "openai-codex/gpt-5.4",
           "fallbacks": [
             "openai-codex/gpt-5.3-codex",
             "openai-codex/gpt-5.4",
@@ -99,7 +99,7 @@
         "workspace": "/opt/OpenclawAgent/docker-infra/workspace",
         "agentDir": "/opt/OpenclawAgent/docker-infra/agent",
         "model": {
-          "primary": "openai-codex/gpt-5.4-mini",
+          "primary": "openai-codex/gpt-5.4",
           "fallbacks": [
             "openai-codex/gpt-5.3-codex",
             "openai-codex/gpt-5.4",
@@ -118,7 +118,7 @@
         "workspace": "/opt/OpenclawAgent/creative-director/workspace",
         "agentDir": "/opt/OpenclawAgent/creative-director/agent",
         "model": {
-          "primary": "openai-codex/gpt-5.4-mini",
+          "primary": "openai-codex/gpt-5.4",
           "fallbacks": [
             "openai-codex/gpt-5.4",
             "anthropic/claude-sonnet-4-6",
@@ -148,27 +148,39 @@
     }
   },
   "gateway": {
-    "mode": "network",
+    "mode": "local",
     "port": 18789,
-    "bind": null,
+    "bind": "loopback",
     "controlUi": {
       "enabled": true,
       "allowedOrigins": [
-        "*"
+        "http://localhost:18789",
+        "http://127.0.0.1:18789"
       ],
-      "allowInsecureAuth": true,
-      "dangerouslyDisableDeviceAuth": true,
-      "dangerouslyAllowHostHeaderOriginFallback": true
+      "allowInsecureAuth": false,
+      "dangerouslyDisableDeviceAuth": false,
+      "dangerouslyAllowHostHeaderOriginFallback": false
     },
     "auth": {
       "mode": "token",
-      "token": "abf45c46131a02312e5029bfa7a9e9dd81e7c3e97399c40c"
-    }
+      "token": "__SET_OPENCLAW_GATEWAY_TOKEN__",
+      "rateLimit": {
+        "maxAttempts": 10,
+        "windowMs": 60000,
+        "lockoutMs": 300000
+      }
+    },
+    "customBindHost": "0.0.0.0"
   },
   "plugins": {
     "allow": [
       "complexity-router"
-    ]
+    ],
+    "entries": {
+      "complexity-router": {
+        "enabled": true
+      }
+    }
   },
   "mcp": {
     "servers": {
@@ -184,6 +196,14 @@
           "jdocmunch-mcp"
         ]
       }
+    }
+  },
+  "tools": {
+    "sessions": {
+      "visibility": "all"
+    },
+    "agentToAgent": {
+      "enabled": true
     }
   }
 }
