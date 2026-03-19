@@ -222,12 +222,15 @@ for agent in "${!AGENT_SESSIONS[@]}"; do
     continue
   fi
 
+  # Extract the short session target (e.g. session:python-dev-agent) from the full key
+  session_target=$(echo "$session_key" | sed 's|^agent:[^:]*:||')
+
   OPENCLAW_CONFIG_PATH="$OPENCLAW_CONFIG" openclaw cron add \
     --name "$cron_name" \
     --agent "$agent" \
     --every "1h" \
     --message "Heartbeat: check for pending tasks from R. Daneel and process them. If none, reply HEARTBEAT_OK." \
-    --session-key "$session_key" \
+    --session "$session_target" \
     --no-deliver \
     --light-context \
     --json > /dev/null 2>&1 && success "  Registered cron: $cron_name" \
