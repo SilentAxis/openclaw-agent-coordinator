@@ -159,6 +159,24 @@ else
   fi
 fi
 
+# ── Step 1b: Inject gateway token ────────────────────────────────────────────
+if [[ -n "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
+  # Inject token into openclaw.json gateway.auth.token using jq
+  if command -v jq &>/dev/null; then
+    TMPFILE=$(mktemp)
+    jq --arg token "$OPENCLAW_GATEWAY_TOKEN" \
+      '.gateway.auth = {"mode": "token", "token": $token}' \
+      "$OPENCLAW_CONFIG" > "$TMPFILE" && mv "$TMPFILE" "$OPENCLAW_CONFIG"
+    success "Gateway auth token injected into openclaw.json"
+  else
+    warn "jq not found — cannot inject gateway token automatically"
+    warn "Manually set gateway.auth.token in $OPENCLAW_CONFIG"
+  fi
+else
+  warn "OPENCLAW_GATEWAY_TOKEN not set — gateway RPC auth will not work"
+  warn "Add OPENCLAW_GATEWAY_TOKEN to your .env (copy from: grep -A5 '\"auth\"' ~/.openclaw/openclaw.json)"
+fi
+
 # ── Step 2: Create directories ────────────────────────────────────────────────
 info "Step 2: Creating agent directories..."
 
