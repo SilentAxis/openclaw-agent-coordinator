@@ -61,22 +61,9 @@ else
   info "Cloning disk: $SOURCE_DISK → $CLONE_DISK"
   [[ -f "$SOURCE_DISK" ]] || die "Source disk not found: $SOURCE_DISK — check virsh dumpxml $SOURCE_VM"
 
-  # Pause source VM to ensure a clean disk copy
-  SOURCE_STATE=$(virsh domstate "$SOURCE_VM" 2>/dev/null || echo "unknown")
-  if [[ "$SOURCE_STATE" == "running" ]]; then
-    info "Suspending '$SOURCE_VM' for clean disk copy..."
-    virsh suspend "$SOURCE_VM"
-    SUSPENDED=true
-  fi
-
-  # Full independent copy — required because SOURCE_VM is running and holds a
-  # write lock on the backing file. A linked clone would conflict with it.
-  qemu-img convert -f qcow2 -O qcow2 "$SOURCE_DISK" "$CLONE_DISK"
-
-  if [[ "${SUSPENDED:-false}" == "true" ]]; then
-    virsh resume "$SOURCE_VM"
-    ok "Resumed '$SOURCE_VM'."
-  fi
+  # Full independent copy. --force-share allows reading while the VM holds a
+  # write lock — no need to suspend the source VM.
+  qemu-img convert --force-share -f qcow2 -O qcow2 "$SOURCE_DISK" "$CLONE_DISK"
 
   ok "Disk cloned."
 fi
@@ -127,7 +114,7 @@ if [[ -f "$CLONE_DISK" ]]; then
       virsh suspend "$SOURCE_VM"
       SUSPENDED=true
     fi
-    qemu-img convert -f qcow2 -O qcow2 "$SOURCE_DISK" "$CLONE_DISK"
+    qemu-img convert --force-share -f qcow2 -O qcow2 "$SOURCE_DISK" "$CLONE_DISK"
     if [[ "${SUSPENDED:-false}" == "true" ]]; then
       virsh resume "$SOURCE_VM"
       ok "Resumed '$SOURCE_VM'."
