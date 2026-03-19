@@ -25,7 +25,7 @@ DISK_DIR="/mnt/par-assembly/virtclaw"
 CLONE_DISK="${DISK_DIR}/openclaw-test.qcow2"
 NETCFG_REMOTE="/etc/network/interfaces"
 SSH_KEY="${HOME}/.ssh/openclaw-fileserver"
-SSH_USER="forge"
+SSH_USER="ludite"
 # ─────────────────────────────────────────────────────────────────────────────
 
 info()  { echo "[INFO]  $*"; }
@@ -195,7 +195,7 @@ EOF"
   sleep 3
 
   # Verify we can reach it on the new IP
-  if ssh -i "${SSH_KEY}" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "forge@${CLONE_IP}" "echo ok" &>/dev/null; then
+  if ssh -i "${SSH_KEY}" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "${SSH_USER}@${CLONE_IP}" "echo ok" &>/dev/null; then
     ok "VM is now reachable at $CLONE_IP."
   else
     warn "VM may need a reboot to fully apply new IP. Try: virsh reboot $CLONE_VM"
