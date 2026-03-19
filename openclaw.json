@@ -1,4 +1,17 @@
 {
+  "meta": {
+    "lastTouchedVersion": "2026.3.14",
+    "lastTouchedAt": "2026-03-19T02:06:37.103Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-03-19T02:06:14.312Z",
+    "lastRunVersion": "2026.3.14",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  },
+  "diagnostics": {
+    "enabled": true
+  },
   "agents": {
     "defaults": {
       "model": {
@@ -10,22 +23,16 @@
       },
       "models": {
         "anthropic/claude-sonnet-4-6": {
-          "alias": "sonnet",
-          "cacheRetention": "long"
+          "alias": "sonnet"
         },
-        "anthropic/claude-haiku-4-5": {
-          "cacheRetention": "short"
-        },
+        "anthropic/claude-haiku-4-5": {},
         "google/gemini-3-flash-preview": {
-          "alias": "gemini",
-          "cacheRetention": "short"
+          "alias": "gemini"
         }
       },
       "contextPruning": {
         "mode": "cache-ttl",
-        "ttl": "55m",
-        "pruneToolOutputs": true,
-        "pruneOldMessages": true
+        "ttl": "55m"
       },
       "compaction": {
         "mode": "safeguard"
@@ -38,10 +45,10 @@
     "list": [
       {
         "id": "coordinator",
+        "default": true,
         "name": "R. Daneel",
         "workspace": "/opt/OpenclawAgent/coordinator/workspace",
         "agentDir": "/opt/OpenclawAgent/coordinator/agent",
-        "default": true,
         "model": {
           "primary": "anthropic/claude-sonnet-4-6",
           "fallbacks": [
@@ -103,6 +110,12 @@
       }
     ]
   },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
   "session": {
     "dmScope": "per-channel-peer",
     "maintenance": {
@@ -112,21 +125,22 @@
       "rotateBytes": "10mb"
     }
   },
-  "diagnostics": {
-    "enabled": true,
-    "trackCacheHits": true,
-    "trackTokenUsage": true,
-    "trackModelSwitches": true
+  "gateway": {
+    "mode": "local"
   },
   "mcp": {
     "servers": {
       "jcodemunch": {
         "command": "uvx",
-        "args": ["jcodemunch-mcp"]
+        "args": [
+          "jcodemunch-mcp"
+        ]
       },
       "jdocmunch": {
         "command": "uvx",
-        "args": ["jdocmunch-mcp"]
+        "args": [
+          "jdocmunch-mcp"
+        ]
       }
     }
   }

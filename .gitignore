@@ -15,3 +15,5 @@
 
 # Test results (logs, not code)
 tests/results/*.log
+openclaw.json.bak
+*.bak.*
