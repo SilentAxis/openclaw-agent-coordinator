@@ -194,10 +194,45 @@ if [[ ! -f "$SESSION_CONFIG" ]]; then
   error "Missing session config: $SESSION_CONFIG"
 fi
 
-# Persistent named sessions are created on first use via sessionTarget in cron jobs.
-# No explicit registration step needed — OpenClaw creates them automatically.
-success "Session config verified: $SESSION_CONFIG"
-info "  Sessions will be created on first use (sessionTarget: session:*-agent)"
+# Register persistent named sessions via cron heartbeats.
+# Each cron job targets a session key — OpenClaw creates the session on first run.
+declare -A AGENT_SESSIONS=(
+  ["coordinator"]="agent:coordinator:session:coordinator-agent"
+  ["python-dev"]="agent:python-dev:session:python-dev-agent"
+  ["docker-infra"]="agent:docker-infra:session:docker-infra-agent"
+  ["creative-director"]="agent:creative-director:session:creative-director-agent"
+)
+declare -A AGENT_NAMES=(
+  ["coordinator"]="R. Daneel"
+  ["python-dev"]="R. Sammy"
+  ["docker-infra"]="R. Giskard"
+  ["creative-director"]="R. Andrew"
+)
+
+EXISTING_CRONS=$(OPENCLAW_CONFIG_PATH="$OPENCLAW_CONFIG" openclaw cron list --json 2>/dev/null || echo "[]")
+
+for agent in "${!AGENT_SESSIONS[@]}"; do
+  session_key="${AGENT_SESSIONS[$agent]}"
+  agent_name="${AGENT_NAMES[$agent]}"
+  cron_name="${agent_name} heartbeat"
+
+  # Skip if already registered
+  if echo "$EXISTING_CRONS" | grep -q "\"$cron_name\"" 2>/dev/null; then
+    success "  Cron already registered: $cron_name"
+    continue
+  fi
+
+  OPENCLAW_CONFIG_PATH="$OPENCLAW_CONFIG" openclaw cron add \
+    --name "$cron_name" \
+    --agent "$agent" \
+    --every "1h" \
+    --message "Heartbeat: check for pending tasks from R. Daneel and process them. If none, reply HEARTBEAT_OK." \
+    --session-key "$session_key" \
+    --no-deliver \
+    --light-context \
+    --json > /dev/null 2>&1 && success "  Registered cron: $cron_name" \
+                              || warn "  Failed to register cron: $cron_name (gateway may not be running)"
+done
 
 # ── Step 5: Validate openclaw.json ─────────────────────────────────────────────
 info "Step 5: Validating openclaw.json..."
