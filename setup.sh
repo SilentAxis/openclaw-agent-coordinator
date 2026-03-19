@@ -144,11 +144,20 @@ else
   warn "Copy $AGENT_ROOT/.env.example to $AGENT_ROOT/.env and fill in your keys"
 fi
 
-# Check required API key
-if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
-  error "ANTHROPIC_API_KEY is not set. Add it to your .env or environment."
+# Check Anthropic auth — API key OR OAuth (Claude subscription via OpenClaw)
+if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+  success "ANTHROPIC_API_KEY present"
+else
+  # Check for OpenClaw OAuth auth profile (Claude subscription)
+  OAUTH_PROFILE=$(find "$HOME/.openclaw" -path "*/auth-profiles*" -name "*.json" 2>/dev/null | head -1)
+  if [[ -n "$OAUTH_PROFILE" ]]; then
+    success "Anthropic auth: OpenClaw OAuth profile found (Claude subscription)"
+  else
+    warn "ANTHROPIC_API_KEY not set and no OAuth profile found."
+    warn "If using Claude via subscription, run 'openclaw onboard' on this machine first."
+    warn "If using API key, add ANTHROPIC_API_KEY to $AGENT_ROOT/.env"
+  fi
 fi
-success "ANTHROPIC_API_KEY present"
 
 # ── Step 2: Create directories ────────────────────────────────────────────────
 info "Step 2: Creating agent directories..."
