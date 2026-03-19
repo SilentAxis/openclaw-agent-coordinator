@@ -1,0 +1,50 @@
+{
+  "id": "complexity-router",
+  "name": "Complexity Router",
+  "description": "Routes messages to optimal model (Ollama/Haiku/Sonnet) based on prompt complexity scoring. Uses before_model_resolve hook — works globally across all channels.",
+  "kind": "service",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+        "description": "Enable/disable routing (default: true)"
+      },
+      "logDecisions": {
+        "type": "boolean",
+        "description": "Log routing decisions to plugin logger (default: false)"
+      },
+      "bypassTriggers": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Trigger types that bypass routing (default: [heartbeat, cron])"
+      },
+      "channelOverrides": {
+        "type": "object",
+        "description": "Per-channel max tier cap, e.g. { \"bluebubbles\": { \"maxTier\": 2 } }"
+      },
+      "circuitBreakerThreshold": {
+        "type": "number",
+        "description": "Failures before circuit opens (default: 3)"
+      },
+      "circuitBreakerWindowMs": {
+        "type": "number",
+        "description": "Window for failure counting in ms (default: 300000 = 5min)"
+      },
+      "circuitBreakerResetMs": {
+        "type": "number",
+        "description": "How long circuit stays open in ms (default: 600000 = 10min)"
+      }
+    }
+  },
+  "uiHints": {
+    "enabled": { "label": "Enable Complexity Router" },
+    "logDecisions": { "label": "Log Routing Decisions" },
+    "bypassTriggers": { "label": "Bypass Triggers" },
+    "channelOverrides": { "label": "Per-Channel Overrides" },
+    "circuitBreakerThreshold": { "label": "Circuit Breaker Threshold" },
+    "circuitBreakerWindowMs": { "label": "Circuit Breaker Window (ms)" },
+    "circuitBreakerResetMs": { "label": "Circuit Breaker Reset (ms)" }
+  }
+}

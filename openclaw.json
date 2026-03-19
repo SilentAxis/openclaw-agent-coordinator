@@ -15,20 +15,32 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "anthropic/claude-haiku-4-5",
+        "primary": "openai-codex/gpt-5.4-mini",
         "fallbacks": [
+          "openai-codex/gpt-5.3-codex",
+          "openai-codex/gpt-5.4",
+          "anthropic/claude-haiku-4-5",
           "anthropic/claude-sonnet-4-6",
-          "google/gemini-3-flash-preview"
+          "anthropic/claude-opus-4-6"
         ]
       },
       "models": {
+        "openai-codex/gpt-5.4-mini": {
+          "alias": "gpt54mini"
+        },
+        "openai-codex/gpt-5.3-codex": {
+          "alias": "codex"
+        },
+        "openai-codex/gpt-5.4": {
+          "alias": "gpt54"
+        },
         "anthropic/claude-sonnet-4-6": {
           "alias": "sonnet"
         },
-        "anthropic/claude-haiku-4-5": {},
-        "google/gemini-3-flash-preview": {
-          "alias": "gemini"
-        }
+        "anthropic/claude-opus-4-6": {
+          "alias": "opus"
+        },
+        "anthropic/claude-haiku-4-5": {}
       },
       "contextPruning": {
         "mode": "cache-ttl",
@@ -50,14 +62,16 @@
         "workspace": "/opt/OpenclawAgent/coordinator/workspace",
         "agentDir": "/opt/OpenclawAgent/coordinator/agent",
         "model": {
-          "primary": "anthropic/claude-sonnet-4-6",
+          "primary": "openai-codex/gpt-5.3-codex",
           "fallbacks": [
-            "anthropic/claude-haiku-4-5"
+            "openai-codex/gpt-5.4",
+            "anthropic/claude-sonnet-4-6",
+            "anthropic/claude-opus-4-6"
           ]
         },
         "identity": {
           "name": "R. Daneel",
-          "emoji": "🧠"
+          "emoji": "\ud83e\udde0"
         }
       },
       {
@@ -66,14 +80,17 @@
         "workspace": "/opt/OpenclawAgent/python-dev/workspace",
         "agentDir": "/opt/OpenclawAgent/python-dev/agent",
         "model": {
-          "primary": "anthropic/claude-haiku-4-5",
+          "primary": "openai-codex/gpt-5.4-mini",
           "fallbacks": [
+            "openai-codex/gpt-5.3-codex",
+            "openai-codex/gpt-5.4",
+            "anthropic/claude-haiku-4-5",
             "anthropic/claude-sonnet-4-6"
           ]
         },
         "identity": {
           "name": "R. Sammy",
-          "emoji": "🐍"
+          "emoji": "\ud83d\udc0d"
         }
       },
       {
@@ -82,14 +99,17 @@
         "workspace": "/opt/OpenclawAgent/docker-infra/workspace",
         "agentDir": "/opt/OpenclawAgent/docker-infra/agent",
         "model": {
-          "primary": "anthropic/claude-haiku-4-5",
+          "primary": "openai-codex/gpt-5.4-mini",
           "fallbacks": [
+            "openai-codex/gpt-5.3-codex",
+            "openai-codex/gpt-5.4",
+            "anthropic/claude-haiku-4-5",
             "anthropic/claude-sonnet-4-6"
           ]
         },
         "identity": {
           "name": "R. Giskard",
-          "emoji": "🐳"
+          "emoji": "\ud83d\udc33"
         }
       },
       {
@@ -98,14 +118,16 @@
         "workspace": "/opt/OpenclawAgent/creative-director/workspace",
         "agentDir": "/opt/OpenclawAgent/creative-director/agent",
         "model": {
-          "primary": "anthropic/claude-sonnet-4-6",
+          "primary": "openai-codex/gpt-5.4-mini",
           "fallbacks": [
-            "anthropic/claude-haiku-4-5"
+            "openai-codex/gpt-5.4",
+            "anthropic/claude-sonnet-4-6",
+            "anthropic/claude-opus-4-6"
           ]
         },
         "identity": {
           "name": "R. Andrew",
-          "emoji": "🎨"
+          "emoji": "\ud83c\udfa8"
         }
       }
     ]
@@ -126,10 +148,27 @@
     }
   },
   "gateway": {
-    "mode": "local"
+    "mode": "network",
+    "port": 18789,
+    "bind": null,
+    "controlUi": {
+      "enabled": true,
+      "allowedOrigins": [
+        "*"
+      ],
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true,
+      "dangerouslyAllowHostHeaderOriginFallback": true
+    },
+    "auth": {
+      "mode": "token",
+      "token": "abf45c46131a02312e5029bfa7a9e9dd81e7c3e97399c40c"
+    }
   },
   "plugins": {
-    "allow": ["complexity-router"]
+    "allow": [
+      "complexity-router"
+    ]
   },
   "mcp": {
     "servers": {

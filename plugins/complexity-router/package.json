@@ -1,0 +1,10 @@
+{
+  "name": "complexity-router",
+  "version": "1.0.0",
+  "description": "OpenClaw plugin: route messages to optimal model based on complexity scoring",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node scorer.test.js"
+  }
+}
