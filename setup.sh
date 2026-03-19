@@ -194,14 +194,10 @@ if [[ ! -f "$SESSION_CONFIG" ]]; then
   error "Missing session config: $SESSION_CONFIG"
 fi
 
-# Use openclaw sessions register if available, otherwise note for manual step
-if openclaw sessions register --help &>/dev/null 2>&1; then
-  AGENT_ROOT="$AGENT_ROOT" openclaw sessions register --config "$SESSION_CONFIG"
-  success "Persistent sessions registered"
-else
-  warn "openclaw sessions register not available — sessions will be created on first use"
-  warn "Manual alternative: start each agent session once to initialise it"
-fi
+# Persistent named sessions are created on first use via sessionTarget in cron jobs.
+# No explicit registration step needed — OpenClaw creates them automatically.
+success "Session config verified: $SESSION_CONFIG"
+info "  Sessions will be created on first use (sessionTarget: session:*-agent)"
 
 # ── Step 5: Validate openclaw.json ─────────────────────────────────────────────
 info "Step 5: Validating openclaw.json..."
